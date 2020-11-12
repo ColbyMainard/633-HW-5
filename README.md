@@ -1,8 +1,9 @@
 # 633-HW-5
-This is a COVID-19 diagnosis machine learning project.\n
-Team Name: A B1t Stressed\n
-Team Members:\n
-    PUT TEAM MEMBER NAMES HERE
+This is a COVID-19 diagnosis machine learning project.
+## Team Name:
+A B1t Stressed
+## Team Members:
+PUT TEAM MEMBER NAMES HERE
 
 # Explanation of Files
 ## feature_extraction_image_preprocessing.py
