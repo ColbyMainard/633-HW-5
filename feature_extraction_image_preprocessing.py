@@ -15,28 +15,29 @@ from skimage import exposure
 from scipy.stats import entropy
 
 
-def getTrainImageInfo():
+def getImageInfo(mode):
     total_test_images = 0
-    image_resolution = {}
+
+    if mode == 'train':
+        path = TRAIN_IMAGE_DIR
+    else:
+        path = TEST_IMAGE_DIR
+
     # IMPORTANT
     # we need to natsort the list otherwise we will not get the correct index
     # because python traverse the list as 1, 11, 12, 13, ...
-    for image in natsorted(os.listdir(TRAIN_IMAGE_DIR)):
+    for image in natsorted(os.listdir(path)):
         image_name = image
-        full_path_to_image = os.path.join(TRAIN_IMAGE_DIR, image)
+        full_path_to_image = os.path.join(path, image)
         image = cv2.imread(full_path_to_image)
 
         # square crop and resize then save the new image
-        resize(image, image_name)
+        resize(image, image_name, mode=mode)
 
-        if image.shape not in image_resolution:
-            image_resolution[image.shape] = 1
-        else:
-            image_resolution[image.shape] += 1
         total_test_images += 1
 
 
-def resize(image, image_name):
+def resize(image, image_name, mode='train'):
     resize_resolution = (600, 600)
 
     height, width, channel = image.shape
@@ -56,7 +57,10 @@ def resize(image, image_name):
     # cv2.imshow("Resized image", resized)
     # cv2.waitKey(0)
 
-    image_name = os.path.join(RESIZE_TRAIN_IMAGE_DIR, image_name)
+    if mode == 'train':
+        image_name = os.path.join(RESIZE_TRAIN_IMAGE_DIR, image_name)
+    else:
+        image_name = os.path.join(RESIZE_TEST_IMAGE_DIR, image_name)
     cv2.imwrite(image_name, resized)
 
 
@@ -133,16 +137,16 @@ def getFeature(feature):
         hog *
     """
     if feature == 'gray_scale':
-        return np.load(gray_scale_feature.npy)
+        return np.load('gray_scale_feature.npy')
 
     if feature == 'mean_pixel':
-        return np.load(mean_pixel_feature.npy)
+        return np.load('mean_pixel_feature.npy')
 
     if feature == 'extracting_edge':
-        return np.load(extracting_edge_feature.npy)
+        return np.load('extracting_edge_feature.npy')
 
     if feature == 'hog':
-        return np.load(hog_feature.npy)
+        return np.load('hog_feature.npy')
 
 
 class DataPoint:
@@ -377,21 +381,36 @@ class DataPoint:
 if __name__ == "__main__":
     TRAIN_IMAGE_DIR = 'train'
     TEST_IMAGE_DIR = 'test'
-    RESIZE_TRAIN_IMAGE_DIR = 'resize_train'
+    RESIZE_TRAIN_IMAGE_DIR = 'resized_train'
+    RESIZE_TEST_IMAGE_DIR = 'resized_test'
     # make folder if its not existed
     try:
         os.mkdir(RESIZE_TRAIN_IMAGE_DIR)
     except FileExistsError:
         pass
 
+    try:
+        os.mkdir(RESIZE_TEST_IMAGE_DIR)
+    except FileExistsError:
+        pass
+
     """
-        Get the basic information of our test data
+        Get the basic information of our train data
         
         If this is the first time you run the code
         Please uncomment 'getTrainImageInfo()' to get the resize images
     """
-    getTrainImageInfo()
-    print('Finished resizing images.')
+    getImageInfo('train')
+    print('Finished resizing train images.')
+
+    """
+        Get the basic information of our test data
+
+        If this is the first time you run the code
+        Please uncomment 'getTrainImageInfo()' to get the resize images
+    """
+    getImageInfo('test')
+    print('Finished resizing test images.')
 
     """
         Extract image feature
