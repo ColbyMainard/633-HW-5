@@ -58,7 +58,7 @@ class CovidAdaBoostLearner(CovidLearner):
 		print("Train model from data.")
 		util_methods.raiseNotDefined()
 	
-	def predict(self):
+	def predict(self, x_data):
 		print("Make prediction from test data.")
 		util_methods.raiseNotDefined()
 	
@@ -108,10 +108,12 @@ class CovidImageNeuralNetworkLearner(CovidLearner):
 	
 	def train(self):
 		print("Train model from data.")
+		best_params = self.optimize()
 		util_methods.raiseNotDefined()
 	
-	def predict(self):
+	def predict(self, x_data):
 		print("Make prediction from test data.")
+		self.model.predict()#
 		util_methods.raiseNotDefined()
 
 	def optimize(self):
@@ -122,16 +124,17 @@ class CovidImageNeuralNetworkLearner(CovidLearner):
 			self.model = models.Sequential()
 			self.model.add(Conv2D(32, kernel_size=3, activation=activator, input_shape=(48,48,1)))#add convolutional input layer
 			for i in range(0, layer_count):
-				self.model.add()#add non-convolutional layer
-				self.model.add()#add convolutional layer
-				self.model.add()#add dropout layer
+				self.model.add(self.non_conv_layer_type())#add non-convolutional layer
+				self.model.add((Conv2D(32, kernel_size=3, activation=activator)))#add convolutional layer
+				self.model.add(Dropout(dropout_val))#add dropout layer
 			#split training data into x data and y data, then perform 5 fold cross validation and get average loss across all folds
 			for train_index, test_index in folds.split(x_data, y_data):
-				X_train, X_test = x_data[train_index], x_data[test_index] #x train/test split
+				x_train, x_test = x_data[train_index], x_data[test_index] #x train/test split
 				y_train, y_test = y_data[train_index], y_data[test_index] #y train/test split
 				self.model.compile(optimizer=optimizer, loss='binary_crossentropy')
-				model_history = self.model.fit(x_train, to_categorical(y_train), epochs=10, batch_size=256,)
+				model_history = self.model.fit(x_train, to_categorical(y_train), epochs=epoch_num, batch_size=256,)
 		best = fmin(optimize_convolutional_network, self.hyperopt_space, algo=tpe.suggest, max_evals=500)
+		return best
 		util_methods.raiseNotDefined()
 
 class CovidPersonalDataLearner(CovidLearner):
