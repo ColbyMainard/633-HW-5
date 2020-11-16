@@ -28,6 +28,8 @@ from sklearn.model_selection import StratifiedKFold
 
 import pandas as pd
 
+from adaboost import *
+
 #returns a list of grayscale images
 def load_image_directory(directory_name):
 	image_list = []
@@ -56,7 +58,8 @@ def parse_csv_data(csv_filename, has_label=True):#has label will be true for tra
 		if has_label:
 			y_data.append(to_categorical(raw_data["covid(label)"][idx]))
 	return (np.array(x_data), np.array(y_data))
-#ADD ADA CLASSIFIER ITEMS HERE
+
+
 
 #for neural networks
 def save_keras_model(model, json_file_name, h5_file_name):
@@ -101,15 +104,21 @@ def find_optimal_parameters_xray_only(x_data, y_data):
 #functions as test harness stub for later use
 if __name__ == "__main__":
 	print("Loading preprocessed images...")
-	training_images = load_image_directory("resized_train")
+	training_images = load_image_directory("train")
 	print("\tTraining images loaded...")
-	test_images = load_image_directory("resized_test")
+	test_images = load_image_directory("test")
 	print("\tTest images loaded...")
 	print("Loading csv data...")
 	training_data_x, training_data_y = parse_csv_data("train.csv")
 	testing_data_x, testing_data_y = parse_csv_data("test.csv", False)
 	print("Testing various learning agents...")
-	print("\tAdaBoost tests...")
+	print("\tAdaBoost tests...")	
+
+	# params = {}
+	# params['n_estimators'] = 100
+	# model = adaboost_classifier(training_images, training_data_y, params)
+	# print(adaboost_score(model, test_images, testing_data_y))
+
 	print("\tImage processing tests...")
 	print("\tPatient info tests...")
 	print("\tCombined image and patient info tests...")
