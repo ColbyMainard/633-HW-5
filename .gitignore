@@ -1,2 +1,5 @@
 # virtualenv files
 hw5/ 
+
+# any python cache file
+*.pyc 
