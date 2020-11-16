@@ -77,30 +77,6 @@ def load_keras_model(json_file_name, h5_file_name):
 	model.load_weights(h5_file_name)
 	return model
 
-# x ray only neural network
-def hyperopt_space_xray_only():
-	possible_layer_counts = [3,4,5,6]
-	possible_compiler_optimizers = ['ada', 'rmsprop']
-	activation_functions = ['relu', 'sigmoid']
-	epoch_count = range(1,10) * 30
-	cases_list = []
-	case_number = 1
-	non_conv_layer_types = [Dense, MaxPooling2D]
-	for layer_count in possible_layer_counts:
-		for optimizer in possible_compiler_optimizers:
-			for activators in activation_functions:
-				for epoch_num in epoch_count:
-					for layer_type in non_conv_layer_types:
-						case_string = "case " + str(case_number)
-						cases_list.append((case_string, layer_count, optimizer, activators, epoch_num, layer_type, hp.uniform("dropout", 0, 1)))
-	return hp.choice('a', cases_list)
-
-def find_optimal_parameters_xray_only(x_data, y_data):
-	folds = StratifiedKFold(n_splits=5, random_state=None, shuffle=False)
-	for train_index, test_index in folds.split(x_data, y_data):
-		X_train, X_test = x_data[train_index], x_data[test_index] #x train/test split
-		y_train, y_test = y_data[train_index], y_data[test_index] #y train/test split
-
 #functions as test harness stub for later use
 if __name__ == "__main__":
 	print("Loading preprocessed images...")
