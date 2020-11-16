@@ -4,7 +4,11 @@
 
 #import various machine learning libraries
 
+import os
+import cv2
+
 from keras import models
+from numpy.core.defchararray import array
 import util_methods
 
 import keras
@@ -14,185 +18,96 @@ from keras import Sequential
 from keras.utils import to_categorical
 from keras.layers import Dense, Dropout, Conv2D, MaxPooling2D
 from keras.models import model_from_json
+import numpy as np
 
-class CovidLearner():
-	def __init__(self, training_data_files, test_data_files):
-		self.training_files = training_data_files
-		self.testing_files = test_data_files
-	
-	def save_model(self, filename):
-		print("Save model to", filename)
-		util_methods.raiseNotDefined()
-	
-	def load(self, filename):
-		print("Load model from", filename)
-		util_methods.raiseNotDefined()
-	
-	def train(self):
-		print("Train model from data.")
-		util_methods.raiseNotDefined()
-	
-	def predict(self):
-		print("Make prediction from test data.")
-		util_methods.raiseNotDefined()
-	
-	def optimize(self):
-		print("Find optimal parameters.")
-		util_methods.raiseNotDefined()
+from natsort import natsorted
 
-class CovidAdaBoostLearner(CovidLearner):
-	#implement b.iv. here
-	def __init__(self, training_data_files, test_data_files):
-		self.training_files = training_data_files
-		self.testing_files = test_data_files
-	
-	def save_model(self, filename):
-		print("Save model to", filename)
-		util_methods.raiseNotDefined()
-	
-	def load(self, filename):
-		print("Load model from", filename)
-		util_methods.raiseNotDefined()
-	
-	def train(self):
-		print("Train model from data.")
-		util_methods.raiseNotDefined()
-	
-	def predict(self, x_data):
-		print("Make prediction from test data.")
-		util_methods.raiseNotDefined()
-	
-	def optimize(self):
-		print("Find optimal parameters.")
-		util_methods.raiseNotDefined()
+import subprocess
 
-class CovidImageNeuralNetworkLearner(CovidLearner):
-	#neural network processing of image-related data will be implemented here
-	def __init__(self, training_data_files, test_data_files, intermediate_layer_type = Dense):
-		self.training_files = training_data_files
-		self.testing_files = test_data_files
-		possible_layer_counts = [3,4,5,6]
-		possible_compiler_optimizers = ['ada', 'rmsprop']
-		activation_functions = ['relu', 'sigmoid']
-		epoch_count = range(1,10) * 30
-		cases_list = []
-		case_number = 1
-		self.non_conv_layer_type = intermediate_layer_type
-		for layer_count in possible_layer_counts:
-			for optimizer in possible_compiler_optimizers:
-				for activators in activation_functions:
-					for epoch_num in epoch_count:
+from sklearn.model_selection import StratifiedKFold
+
+import pandas as pd
+
+#returns a list of grayscale images
+def load_image_directory(directory_name):
+	image_list = []
+	#for each filename in the directory
+	for file_name in os.listdir(directory_name):
+		#get path to file
+		complete_path = os.path.join(directory_name, file_name)
+		#load the image in grayscale, and append it tp the list
+		image_list.append(cv2.imread(complete_path, 0))
+	return image_list
+
+#used to load and parse the test.csv and train.csv
+#returns a tuple containing two numpy arrays in the form (categories, label)
+def parse_csv_data(csv_filename, has_label=True):#has label will be true for training data, false for testing data
+	raw_data = pd.read_csv(csv_filename)
+	parsed_x_data = []
+	parsed_y_data = []
+	col_1 = raw_data["filename"]
+	col_2 = raw_data["gender"]
+	col_3 = raw_data["age"]
+	col_4 = raw_data["location"]
+	x_data = []
+	y_data = []
+	for idx in range(0, len(col_1)):
+		x_data.append([col_1[idx], col_2[idx], col_3[idx], col_4[idx]])
+		if has_label:
+			y_data.append(to_categorical(raw_data["covid(label)"][idx]))
+	return (np.array(x_data), np.array(y_data))
+#ADD ADA CLASSIFIER ITEMS HERE
+
+#for neural networks
+def save_keras_model(model, json_file_name, h5_file_name):
+	model_json = model.to_json()
+	with open(json_file_name, "w") as json_file:
+		json_file.write(model_json)
+	model.save_weights(h5_file_name)
+
+def load_keras_model(json_file_name, h5_file_name):
+	#https://machinelearningmastery.com/save-load-keras-deep-learning-models/
+	json_file = open(json_file_name, 'r') #read structure of network
+	loaded_model_json = json_file.read() #lad file into memory
+	json_file.close()
+	model = model_from_json(loaded_model_json)
+	model.load_weights(h5_file_name)
+	return model
+
+# x ray only neural network
+def hyperopt_space_xray_only():
+	possible_layer_counts = [3,4,5,6]
+	possible_compiler_optimizers = ['ada', 'rmsprop']
+	activation_functions = ['relu', 'sigmoid']
+	epoch_count = range(1,10) * 30
+	cases_list = []
+	case_number = 1
+	non_conv_layer_types = [Dense, MaxPooling2D]
+	for layer_count in possible_layer_counts:
+		for optimizer in possible_compiler_optimizers:
+			for activators in activation_functions:
+				for epoch_num in epoch_count:
+					for layer_type in non_conv_layer_types:
 						case_string = "case " + str(case_number)
-						cases_list.append((case_string, layer_count, optimizer, activators, epoch_num, hp.uniform("dropout", 0, 1)))
-		self.hyperopt_space = hp.choice('a', cases_list)
-		self.model = None
-	
-	def save_model(self, json_file_name, h5_file_name):
-		print("Save model json to", json_file_name, "and the weights will be stored at", h5_file_name)
-		#https://machinelearningmastery.com/save-load-keras-deep-learning-models/
-		model_json = self.model.to_json()
-		with open(json_file_name, "w") as json_file:
-			json_file.write(model_json)
-		self.model.save_weights(h5_file_name)
-		#util_methods.raiseNotDefined()
-	
-	def load(self, json_file_name, h5_file_name):
-		print("Load model json from", json_file_name, "and the weights will be loaded from", h5_file_name)
-		#https://machinelearningmastery.com/save-load-keras-deep-learning-models/
-		json_file = open(json_file_name, 'r') #read structure of network
-		loaded_model_json = json_file.read() #lad file into memory
-		json_file.close()
-		self.model = model_from_json(loaded_model_json)
-		self.model.load_weights(h5_file_name)
-		#util_methods.raiseNotDefined()
-	
-	def train(self):
-		print("Train model from data.")
-		best_params = self.optimize()
-		util_methods.raiseNotDefined()
-	
-	def predict(self, x_data):
-		print("Make prediction from test data.")
-		self.model.predict()#
-		util_methods.raiseNotDefined()
+						cases_list.append((case_string, layer_count, optimizer, activators, epoch_num, layer_type, hp.uniform("dropout", 0, 1)))
+	return hp.choice('a', cases_list)
 
-	def optimize(self):
-		print("Find optimal parameters.")
-		#http://hyperopt.github.io/hyperopt/
-		def optimize_convolutional_network(args):
-			case, layer_count, optimizer, activator, epoch_num, dropout_val = args
-			self.model = models.Sequential()
-			self.model.add(Conv2D(32, kernel_size=3, activation=activator, input_shape=(48,48,1)))#add convolutional input layer
-			for i in range(0, layer_count):
-				self.model.add(self.non_conv_layer_type())#add non-convolutional layer
-				self.model.add((Conv2D(32, kernel_size=3, activation=activator)))#add convolutional layer
-				self.model.add(Dropout(dropout_val))#add dropout layer
-			#split training data into x data and y data, then perform 5 fold cross validation and get average loss across all folds
-			for train_index, test_index in folds.split(x_data, y_data):
-				x_train, x_test = x_data[train_index], x_data[test_index] #x train/test split
-				y_train, y_test = y_data[train_index], y_data[test_index] #y train/test split
-				self.model.compile(optimizer=optimizer, loss='binary_crossentropy')
-				model_history = self.model.fit(x_train, to_categorical(y_train), epochs=epoch_num, batch_size=256,)
-		best = fmin(optimize_convolutional_network, self.hyperopt_space, algo=tpe.suggest, max_evals=500)
-		return best
-		util_methods.raiseNotDefined()
-
-class CovidPersonalDataLearner(CovidLearner):
-	#processing of non-image related data will be done here
-	def __init__(self, training_data_files, test_data_files):
-		self.training_files = training_data_files
-		self.testing_files = test_data_files
-	
-	def save_model(self, filename):
-		print("Save model to", filename)
-		util_methods.raiseNotDefined()
-	
-	def load(self, filename):
-		print("Load model from", filename)
-		util_methods.raiseNotDefined()
-	
-	def train(self):
-		print("Train model from data.")
-		util_methods.raiseNotDefined()
-	
-	def predict(self):
-		print("Make prediction from test data.")
-		util_methods.raiseNotDefined()
-	
-	def optimize(self):
-		print("Find optimal parameters.")
-		#http://hyperopt.github.io/hyperopt/
-		util_methods.raiseNotDefined()
-
-class CovidCombinationDataLearner():
-	#meta learning agent that accepts multiple inputs regarding diagnoses and outputs a result based on their response
-	def __init__(self, training_data_files, test_data_files):
-		self.training_files = training_data_files
-		self.testing_files = test_data_files
-	
-	def save_model(self, filename):
-		print("Save model to", filename)
-		util_methods.raiseNotDefined()
-	
-	def load(self, filename):
-		print("Load model from", filename)
-		util_methods.raiseNotDefined()
-	
-	def train(self):
-		print("Train model from data.")
-		util_methods.raiseNotDefined()
-	
-	def predict(self):
-		print("Make prediction from test data.")
-		util_methods.raiseNotDefined()
-	
-	def optimize(self):
-		print("Find optimal parameters.")
-		#http://hyperopt.github.io/hyperopt/
-		util_methods.raiseNotDefined()
+def find_optimal_parameters_xray_only(x_data, y_data):
+	folds = StratifiedKFold(n_splits=5, random_state=None, shuffle=False)
+	for train_index, test_index in folds.split(x_data, y_data):
+		X_train, X_test = x_data[train_index], x_data[test_index] #x train/test split
+		y_train, y_test = y_data[train_index], y_data[test_index] #y train/test split
 
 #functions as test harness stub for later use
 if __name__ == "__main__":
+	print("Loading preprocessed images...")
+	training_images = load_image_directory("resized_train")
+	print("\tTraining images loaded...")
+	test_images = load_image_directory("resized_test")
+	print("\tTest images loaded...")
+	print("Loading csv data...")
+	training_data_x, training_data_y = parse_csv_data("train.csv")
+	testing_data_x, testing_data_y = parse_csv_data("test.csv", False)
 	print("Testing various learning agents...")
 	print("\tAdaBoost tests...")
 	print("\tImage processing tests...")
