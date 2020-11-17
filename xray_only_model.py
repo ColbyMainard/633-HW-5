@@ -57,7 +57,9 @@ def format_images(directory_name, image_filename_list):
 		loaded_image = cv2.imread(image_filename, 0)
 		loaded_image = np.array(loaded_image)
 		loaded_image = (loaded_image / 255) - .5
-		formatted_images.append(loaded_image)
+		loaded_image.reshape(600*600,1)
+		formatted_images.append([loaded_image])
+	formatted_images = np.array(formatted_images)
 	return formatted_images
 
 def get_cross_validation_accuracy(layer_count, optimizer, activator_fun, layer_type, epoch_count):
@@ -82,12 +84,12 @@ def get_cross_validation_accuracy(layer_count, optimizer, activator_fun, layer_t
 	for train_index, test_index in folds.split(image_filenames, csv_y_data):
 		raw_x_train_data, raw_x_test_data = image_filenames[train_index], image_filenames[test_index]
 		x_train_data = format_images("resized_train", raw_x_train_data)
-		x_train_data = np.array(x_train_data)
-		x_train_data.reshape(200, 600, 600, 1)
+		#x_train_data = np.array(x_train_data)
+		x_train_data = x_train_data.reshape(200, 600, 600)
 		print("Training images shape:", str(x_train_data.shape))
 		x_test_data = format_images("resized_train", raw_x_test_data)
-		x_test_data = np.array(x_test_data)
-		x_test_data.reshape(50, 600, 600, 1)
+		#x_test_data = np.array(x_test_data)
+		x_test_data = x_test_data.reshape(50, 600, 600)
 		print("Test images shape:", str(x_test_data.shape))
 		y_train_data, y_test_data = to_categorical(csv_y_data[train_index], num_classes=2), to_categorical(csv_y_data[test_index], num_classes=2)
 		model_history = model.fit(x_train_data, y_train_data, epochs=epoch_count, batch_size=200)
