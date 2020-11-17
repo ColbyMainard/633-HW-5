@@ -56,10 +56,8 @@ def parse_csv_data(csv_filename, has_label=True):#has label will be true for tra
 	for idx in range(0, len(col_1)):
 		x_data.append([col_1[idx], col_2[idx], col_3[idx], col_4[idx]])
 		if has_label:
-			y_data.append(to_categorical(raw_data["covid(label)"][idx]))
+			y_data.append(raw_data["covid(label)"][idx])
 	return (np.array(x_data), np.array(y_data))
-
-
 
 #for neural networks
 def save_keras_model(model, json_file_name, h5_file_name):
