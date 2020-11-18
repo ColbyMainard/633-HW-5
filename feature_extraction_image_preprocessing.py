@@ -542,33 +542,33 @@ if __name__ == "__main__":
     except FileExistsError:
         pass
 
-    # """
-    #     Get the basic information of our train data
-    #
-    #     If this is the first time you run the code
-    #     Please uncomment 'getTrainImageInfo()' to get the resize images
-    # """
-    # getImageInfo('train')
-    # print('Finished resizing train images.')
-    #
-    # """
-    #     Get the basic information of our test data
-    #
-    #     If this is the first time you run the code
-    #     Please uncomment 'getTrainImageInfo()' to get the resize images
-    # """
-    # getImageInfo('test')
-    # print('Finished resizing test images.')
-    #
-    # """
-    #     Extract image feature
-    #
-    #     You can uncomment the next 2 line to recompute the feature np arrays. It will save the the new array feature,
-    #     so be careful you might overwrite the old feature arrays.
-    # """
-    # train_images = ImagePreprocessor()
-    # train_images.featureExtraction()
-    # print('Finished extracting features from images.')
+    """
+        Get the basic information of our train data
+
+        If this is the first time you run the code
+        Please uncomment 'getTrainImageInfo()' to get the resize images
+    """
+    getImageInfo('train')
+    print('Finished resizing train images.')
+
+    """
+        Get the basic information of our test data
+
+        If this is the first time you run the code
+        Please uncomment 'getTrainImageInfo()' to get the resize images
+    """
+    getImageInfo('test')
+    print('Finished resizing test images.')
+
+    """
+        Extract image feature
+
+        You can uncomment the next 2 line to recompute the feature np arrays. It will save the the new array feature,
+        so be careful you might overwrite the old feature arrays.
+    """
+    train_images = ImagePreprocessor()
+    train_images.featureExtraction()
+    print('Finished extracting features from images.')
 
     """
         Visualize train data
@@ -580,15 +580,15 @@ if __name__ == "__main__":
     train_data.visualizeFeature()
     print('Finished visualize the data and compute entropy.')
 
-    # """
-    #     Update the feature label
-    # """
-    # updateLabelToFeature()
-    # print('Finished fixing label in feature arrays.')
-    #
-    # """
-    #     Prepare test data
-    # """
-    # test_data = TestDataPoint()
-    # test_data.getData()
-    # print('Finished load test data.')
+    """
+        Update the feature label
+    """
+    updateLabelToFeature()
+    print('Finished fixing label in feature arrays.')
+
+    """
+        Prepare test data
+    """
+    test_data = TestDataPoint()
+    test_data.getData()
+    print('Finished load test data.')
