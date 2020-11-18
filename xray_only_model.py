@@ -57,8 +57,8 @@ def format_images(directory_name, image_filename_list):
 		loaded_image = cv2.imread(image_filename, 0)
 		loaded_image = np.array(loaded_image)
 		loaded_image = (loaded_image / 255) - .5
-		loaded_image.reshape(600*600,1)
-		formatted_images.append([loaded_image])
+		loaded_image.reshape(600,600,1)
+		formatted_images.append(loaded_image)
 	formatted_images = np.array(formatted_images)
 	return formatted_images
 
@@ -66,7 +66,7 @@ def get_cross_validation_accuracy(layer_count, optimizer, activator_fun, layer_t
 	model = Sequential()
 	num_pixels = 600*600
 	denom_val = 1
-	model.add(Conv2D(32, kernel_size=3, activation=activator_fun, input_shape=(600,600,1)))
+	model.add(Conv2D(32, kernel_size=3, activation=activator_fun, input_shape=(600,600,1,1)))
 	for idx in range (0, layer_count):
 		model.add(Conv2D(32, kernel_size=(1,1), activation=activator_fun))
 		if layer_type == Dense:
