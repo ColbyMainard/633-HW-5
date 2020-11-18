@@ -3,7 +3,7 @@
 # This translates to image preprocessing, visual feature extraction, feature exploration, and feature selection
 # All the above functionality should be made available in methods/classes as to allow for easy access in other files
 
-import util_methods
+import statistics
 import os
 import cv2
 import numpy as np
@@ -205,6 +205,9 @@ class DataPoint:
     def __init__(self):
         self.data = []
         self.total_data = 250
+        self.age = []
+        self.gender = []
+        self.location = []
 
     def getData(self):
         data_file = open('train.csv', 'r')
@@ -223,9 +226,14 @@ class DataPoint:
 
                 gender = data[0]
                 data.pop(0)
+                self.gender.append(gender)
 
                 age = data[0]
                 data.pop(0)
+                try:
+                    self.age.append(int(age))
+                except ValueError:
+                    self.age.append(0)
 
                 # remove the \n at the end of the line
                 data[-1] = data[-1].split('\n')[0]
@@ -234,9 +242,27 @@ class DataPoint:
 
                 # we only need to care about the city
                 location = data[-1]
+                self.location.append(location)
+                self.data.append([image_name, gender, age, location, label])
+        self.fixMissingValue()
 
-                self.data.append((image_name, gender, age, location, label))
+    def stringListMedian(self, array):
+        half_length = len(array) // 2
+        return array[half_length]
 
+    def fixMissingValue(self):
+        for data in self.data:
+            gender = data[1]
+            age = data[2]
+            location = data[3]
+            if gender == '':
+                data[1] = self.stringListMedian(self.gender)
+
+            if age == '':
+                data[2] = int(statistics.median(self.age))
+
+            if location == '':
+                data[3] = self.stringListMedian(self.location)
         self.data = np.array(self.data)
         np.save('train_data.npy', self.data)
 
@@ -516,33 +542,33 @@ if __name__ == "__main__":
     except FileExistsError:
         pass
 
-    """
-        Get the basic information of our train data
-
-        If this is the first time you run the code
-        Please uncomment 'getTrainImageInfo()' to get the resize images
-    """
-    getImageInfo('train')
-    print('Finished resizing train images.')
-
-    """
-        Get the basic information of our test data
-
-        If this is the first time you run the code
-        Please uncomment 'getTrainImageInfo()' to get the resize images
-    """
-    getImageInfo('test')
-    print('Finished resizing test images.')
-
-    """
-        Extract image feature
-
-        You can uncomment the next 2 line to recompute the feature np arrays. It will save the the new array feature,
-        so be careful you might overwrite the old feature arrays.
-    """
-    train_images = ImagePreprocessor()
-    train_images.featureExtraction()
-    print('Finished extracting features from images.')
+    # """
+    #     Get the basic information of our train data
+    #
+    #     If this is the first time you run the code
+    #     Please uncomment 'getTrainImageInfo()' to get the resize images
+    # """
+    # getImageInfo('train')
+    # print('Finished resizing train images.')
+    #
+    # """
+    #     Get the basic information of our test data
+    #
+    #     If this is the first time you run the code
+    #     Please uncomment 'getTrainImageInfo()' to get the resize images
+    # """
+    # getImageInfo('test')
+    # print('Finished resizing test images.')
+    #
+    # """
+    #     Extract image feature
+    #
+    #     You can uncomment the next 2 line to recompute the feature np arrays. It will save the the new array feature,
+    #     so be careful you might overwrite the old feature arrays.
+    # """
+    # train_images = ImagePreprocessor()
+    # train_images.featureExtraction()
+    # print('Finished extracting features from images.')
 
     """
         Visualize train data
@@ -554,15 +580,15 @@ if __name__ == "__main__":
     train_data.visualizeFeature()
     print('Finished visualize the data and compute entropy.')
 
-    """
-        Update the feature label
-    """
-    updateLabelToFeature()
-    print('Finished fixing label in feature arrays.')
-
-    """
-        Prepare test data
-    """
-    test_data = TestDataPoint()
-    test_data.getData()
-    print('Finished load test data.')
+    # """
+    #     Update the feature label
+    # """
+    # updateLabelToFeature()
+    # print('Finished fixing label in feature arrays.')
+    #
+    # """
+    #     Prepare test data
+    # """
+    # test_data = TestDataPoint()
+    # test_data.getData()
+    # print('Finished load test data.')
