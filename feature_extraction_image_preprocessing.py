@@ -181,34 +181,54 @@ def getFeature(feature):
         The label is the last element
     """
     if feature == 'gray_scale':
-        return np.load('gray_scale_feature.npy', allow_pickle=True)
+        data = np.load('gray_scale_feature.npy', allow_pickle=True)
+        print(f'Getting train gray scale feature: {len(data)}/250')
+        return data
 
     if feature == 'test_gray_scale':
-        return np.load('test_gray_scale_feature.npy', allow_pickle=True)
+        data = np.load('test_gray_scale_feature.npy', allow_pickle=True)
+        print(f'Getting test gray scale feature: {len(data)}/94')
+        return data
 
     if feature == 'mean_pixel':
-        return np.load('mean_pixel_feature.npy', allow_pickle=True)
+        data = np.load('mean_pixel_feature.npy', allow_pickle=True)
+        print(f'Getting train mean pixel feature: {len(data)}/250')
+        return data
 
     if feature == 'test_mean_pixel':
-        return np.load('test_mean_pixel_feature.npy', allow_pickle=True)
+        data = np.load('test_mean_pixel_feature.npy', allow_pickle=True)
+        print(f'Getting test mean pixel feature: {len(data)}/94')
+        return data
 
     if feature == 'extracting_edge_vertical':
-        return np.load('extracting_edge_vertical_feature.npy', allow_pickle=True)
+        data = np.load('extracting_edge_vertical_feature.npy', allow_pickle=True)
+        print(f'Getting train extracting edge vertical feature: {len(data)}/250')
+        return data
 
-    if feature == 'test_extracting_edge':
-        return np.load('test_extracting_edge_vertical_feature.npy', allow_pickle=True)
+    if feature == 'test_extracting_edge_vertical':
+        data = np.load('test_extracting_edge_vertical_feature.npy', allow_pickle=True)
+        print(f'Getting test extracting edge vertical feature: {len(data)}/94')
+        return data
 
     if feature == 'extracting_edge_horizontal':
-        return np.load('extracting_edge_horizontal_feature.npy', allow_pickle=True)
+        data = np.load('extracting_edge_horizontal_feature.npy', allow_pickle=True)
+        print(f'Getting train extracting edge horizontal feature: {len(data)}/250')
+        return data
 
-    if feature == 'test_extracting_edge':
-        return np.load('test_extracting_edge_horizontal_feature.npy', allow_pickle=True)
+    if feature == 'test_extracting_edge_horizontal':
+        data = np.load('test_extracting_edge_horizontal_feature.npy', allow_pickle=True)
+        print(f'Getting test extracting edge horizontal feature: {len(data)}/94')
+        return data
 
     if feature == 'hog':
-        return np.load('hog_feature.npy', allow_pickle=True)
+        data = np.load('hog_feature.npy', allow_pickle=True)
+        print(f'Getting train HOG feature: {len(data)}/250')
+        return data
 
     if feature == 'test_hog':
-        return np.load('test_hog_feature.npy', allow_pickle=True)
+        data = np.load('test_hog_feature.npy', allow_pickle=True)
+        print(f'Getting test HOG feature: {len(data)}/94')
+        return data
 
 
 class DataPoint:
@@ -470,7 +490,8 @@ def updateLabelToFeature():
     dataset = np.load('train_data.npy')
     gray_scale_feature = getFeature('gray_scale')
     mean_pixel_feature = getFeature('mean_pixel')
-    extracting_edge_feature = getFeature('extracting_edge')
+    extracting_edge_horizontal_feature = getFeature('extracting_edge_horizontal')
+    extracting_edge_vertical_feature = getFeature('extracting_edge_vertical')
     hog_feature = getFeature('hog')
 
     for i in range(250):
@@ -480,7 +501,8 @@ def updateLabelToFeature():
         for t in range(250):
             gray_scale_feature_name = gray_scale_feature[t][0]
             mean_pixel_feature_name = mean_pixel_feature[t][0]
-            extracting_edge_feature_name = extracting_edge_feature[t][0]
+            extracting_edge_horizontal_feature_name = extracting_edge_horizontal_feature[t][0]
+            extracting_edge_vertical_feature_name = extracting_edge_vertical_feature[t][0]
             hog_feature_name = hog_feature[t][0]
 
             if name == gray_scale_feature_name:
@@ -489,15 +511,19 @@ def updateLabelToFeature():
             if name == mean_pixel_feature_name:
                 mean_pixel_feature[t][0] = label
 
-            if name == extracting_edge_feature_name:
-                extracting_edge_feature[t][0] = label
+            if name == extracting_edge_horizontal_feature_name:
+                extracting_edge_horizontal_feature[t][0] = label
+
+            if name == extracting_edge_vertical_feature_name:
+                extracting_edge_vertical_feature[t][0] = label
 
             if name == hog_feature_name:
                 hog_feature[t][0] = label
 
     np.save('gray_scale_feature.npy', gray_scale_feature)
     np.save('mean_pixel_feature.npy', mean_pixel_feature)
-    np.save('extracting_edge_feature.npy', extracting_edge_feature)
+    np.save('extracting_edge_horizontal_feature.npy', extracting_edge_horizontal_feature)
+    np.save('extracting_edge_vertical_feature.npy', extracting_edge_vertical_feature)
     np.save('hog_feature.npy', hog_feature)
 
 
@@ -579,7 +605,7 @@ if __name__ == "__main__":
     train_images = ImagePreprocessor()
     train_images.featureExtraction()
     print('Finished extracting features from images.')
-    exit()
+
     """
         Visualize train data
 
