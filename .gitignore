@@ -1,5 +1,14 @@
 # virtualenv files
 hw5/ 
 
+# data files
+resize_train/
+resize_test/
+test/
+train/
+test.csv
+train.csv
+
 # any python cache file
 *.pyc 
+

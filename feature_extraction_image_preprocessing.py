@@ -74,13 +74,14 @@ class ImagePreprocessor:
 
     def featureExtraction(self):
         for image in os.listdir(RESIZE_TRAIN_IMAGE_DIR):
+            image_name = image
             full_path_to_image = os.path.join(RESIZE_TRAIN_IMAGE_DIR, image)
             gray_image = cv2.imread(full_path_to_image, cv2.IMREAD_GRAYSCALE)
             image = cv2.imread(full_path_to_image)
-            self.grayScaleFeature(gray_image)
-            self.meanPixelValueOfChannels(image)
-            self.extractingEdgeFeature(gray_image)
-            self.hogFeature(image)
+            self.grayScaleFeature(gray_image, image_name)
+            self.meanPixelValueOfChannels(image, image_name)
+            self.extractingEdgeFeature(gray_image, image_name)
+            self.hogFeature(image, image_name)
 
         # convert to numpy array to save
         self.gray_scale = np.array(self.gray_scale)
@@ -93,19 +94,19 @@ class ImagePreprocessor:
         np.save('extracting_edge_feature.npy', self.extracting_edge)
         np.save('hog_feature.npy', self.hog)
 
-    def grayScaleFeature(self, gray_image):
+    def grayScaleFeature(self, gray_image, image_name):
         gray_scale_features = np.reshape(gray_image, self.resolution[0] * self.resolution[1])
-        self.gray_scale.append(gray_scale_features)
+        self.gray_scale.append((image_name, gray_scale_features))
 
-    def meanPixelValueOfChannels(self, image):
+    def meanPixelValueOfChannels(self, image, image_name):
         feature_matrix = np.zeros(self.resolution)
         for i in range(image.shape[0]):
             for j in range(image.shape[1]):
                 feature_matrix[i][j] = (int(image[i, j, 0]) + int(image[i, j, 1]) + int(image[i, j, 2])) / 3
         features = np.reshape(feature_matrix, self.resolution[0] * self.resolution[1])
-        self.mean_pixel.append(features)
+        self.mean_pixel.append((image_name, features))
 
-    def extractingEdgeFeature(self, image):
+    def extractingEdgeFeature(self, image, image_name):
         # calculating horizontal edges using prewitt kernel
         edges_prewitt_horizontal = prewitt_h(image)
 
@@ -115,9 +116,9 @@ class ImagePreprocessor:
         # horizontal for image 1 is self.extracting_edge[0][0]
         # vertical for image 1 is self.extracting_edge[0][1]
         edge_features = (edges_prewitt_horizontal, edges_prewitt_vertical)
-        self.extracting_edge.append(edge_features)
+        self.extracting_edge.append((image_name, edge_features))
 
-    def hogFeature(self, image):
+    def hogFeature(self, image, image_name):
         # creating hog features
         fd, hog_image = hog(image, orientations=9, pixels_per_cell=(8, 8),
                             cells_per_block=(2, 2), visualize=True, multichannel=True)
@@ -125,28 +126,39 @@ class ImagePreprocessor:
         # rescale histogram for better display
         hog_image_rescaled = exposure.rescale_intensity(hog_image, in_range=(0, 10))
 
-        self.hog.append(hog_image_rescaled)
+        self.hog.append((image_name, hog_image_rescaled))
 
 
 def getFeature(feature):
     """
         4 possible features, * means more important
+
         gray_scale
         mean_pixel *
         extracting_edge *
         hog *
+
+
+        I think we should use a combination of:
+            mean_pixel with extracting_edge
+            mean_pixel with hog
+
+        The load data will be in the form of: (image_name, feature array)
+        So to get the label of the feature, you need to get the name from train_data.npy
+        The name is the first element
+        The label is the last element
     """
     if feature == 'gray_scale':
-        return np.load('gray_scale_feature.npy')
+        return np.load('gray_scale_feature.npy', allow_pickle=True)
 
     if feature == 'mean_pixel':
-        return np.load('mean_pixel_feature.npy')
+        return np.load('mean_pixel_feature.npy', allow_pickle=True)
 
     if feature == 'extracting_edge':
-        return np.load('extracting_edge_feature.npy')
+        return np.load('extracting_edge_feature.npy', allow_pickle=True)
 
     if feature == 'hog':
-        return np.load('hog_feature.npy')
+        return np.load('hog_feature.npy', allow_pickle=True)
 
 
 class DataPoint:
