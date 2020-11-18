@@ -73,6 +73,7 @@ class ImagePreprocessor:
         self.hog = []
 
     def featureExtraction(self):
+        # for train data
         for image in os.listdir(RESIZE_TRAIN_IMAGE_DIR):
             image_name = image
             full_path_to_image = os.path.join(RESIZE_TRAIN_IMAGE_DIR, image)
@@ -93,6 +94,33 @@ class ImagePreprocessor:
         np.save('mean_pixel_feature.npy', self.mean_pixel)
         np.save('extracting_edge_feature.npy', self.extracting_edge)
         np.save('hog_feature.npy', self.hog)
+
+        # for test data
+        self.gray_scale = []
+        self.mean_pixel = []
+        self.extracting_edge = []
+        self.hog = []
+
+        for image in os.listdir(RESIZE_TEST_IMAGE_DIR):
+            image_name = image
+            full_path_to_image = os.path.join(RESIZE_TEST_IMAGE_DIR, image)
+            gray_image = cv2.imread(full_path_to_image, cv2.IMREAD_GRAYSCALE)
+            image = cv2.imread(full_path_to_image)
+            self.grayScaleFeature(gray_image, image_name)
+            self.meanPixelValueOfChannels(image, image_name)
+            self.extractingEdgeFeature(gray_image, image_name)
+            self.hogFeature(image, image_name)
+
+        # convert to numpy array to save
+        self.gray_scale = np.array(self.gray_scale)
+        self.mean_pixel = np.array(self.mean_pixel)
+        self.extracting_edge = np.array(self.extracting_edge)
+        self.hog = np.array(self.hog)
+
+        np.save('test_gray_scale_feature.npy', self.gray_scale)
+        np.save('test_mean_pixel_feature.npy', self.mean_pixel)
+        np.save('test_extracting_edge_feature.npy', self.extracting_edge)
+        np.save('test_hog_feature.npy', self.hog)
 
     def grayScaleFeature(self, gray_image, image_name):
         gray_scale_features = np.reshape(gray_image, self.resolution[0] * self.resolution[1])
@@ -133,10 +161,10 @@ def getFeature(feature):
     """
         4 possible features, * means more important
 
-        gray_scale
-        mean_pixel *
-        extracting_edge *
-        hog *
+        gray_scale or test_gray_scale
+        mean_pixel * or test_mean_pixel
+        extracting_edge * or test_extracting_edge
+        hog * or test_hog
 
 
         I think we should use a combination of:
@@ -151,14 +179,26 @@ def getFeature(feature):
     if feature == 'gray_scale':
         return np.load('gray_scale_feature.npy', allow_pickle=True)
 
+    if feature == 'test_gray_scale':
+        return np.load('test_gray_scale_feature.npy', allow_pickle=True)
+
     if feature == 'mean_pixel':
         return np.load('mean_pixel_feature.npy', allow_pickle=True)
+
+    if feature == 'test_mean_pixel':
+        return np.load('test_mean_pixel_feature.npy', allow_pickle=True)
 
     if feature == 'extracting_edge':
         return np.load('extracting_edge_feature.npy', allow_pickle=True)
 
+    if feature == 'test_extracting_edge':
+        return np.load('test_extracting_edge_feature.npy', allow_pickle=True)
+
     if feature == 'hog':
         return np.load('hog_feature.npy', allow_pickle=True)
+
+    if feature == 'test_hog':
+        return np.load('test_hog_feature.npy', allow_pickle=True)
 
 
 class DataPoint:
@@ -390,6 +430,76 @@ class DataPoint:
         self.locationHistogram()
 
 
+def updateLabelToFeature():
+    dataset = np.load('train_data.npy')
+    gray_scale_feature = getFeature('gray_scale')
+    mean_pixel_feature = getFeature('mean_pixel')
+    extracting_edge_feature = getFeature('extracting_edge')
+    hog_feature = getFeature('hog')
+
+    for i in range(250):
+        name = dataset[i][0]
+        label = dataset[i][-1]
+
+        for t in range(250):
+            gray_scale_feature_name = gray_scale_feature[t][0]
+            mean_pixel_feature_name = mean_pixel_feature[t][0]
+            extracting_edge_feature_name = extracting_edge_feature[t][0]
+            hog_feature_name = hog_feature[t][0]
+
+            if name == gray_scale_feature_name:
+                gray_scale_feature[t][0] = label
+
+            if name == mean_pixel_feature_name:
+                mean_pixel_feature[t][0] = label
+
+            if name == extracting_edge_feature_name:
+                extracting_edge_feature[t][0] = label
+
+            if name == hog_feature_name:
+                hog_feature[t][0] = label
+
+    np.save('gray_scale_feature.npy', gray_scale_feature)
+    np.save('mean_pixel_feature.npy', mean_pixel_feature)
+    np.save('extracting_edge_feature.npy', extracting_edge_feature)
+    np.save('hog_feature.npy', hog_feature)
+
+
+class TestDataPoint:
+    def __init__(self):
+        self.data = []
+        self.total_data = 94
+
+    def getData(self):
+        data_file = open('test.csv', 'r')
+        for index, data in enumerate(data_file):
+            # skip first line
+            if index:
+                # split by , will cause a problem where the location also have , in them
+                data = data.split(',')
+
+                # the train data we have sometimes doesnt have all the value so we need to take care
+                # of that by removing every other feature based on the index in the data
+                # and what left is the location
+
+                image_name = data[0]
+                data.pop(0)
+
+                gender = data[0]
+                data.pop(0)
+
+                age = data[0]
+                data.pop(0)
+
+                # we only need to care about the city
+                location = data[-1]
+
+                self.data.append((image_name, gender, age, location))
+
+        self.data = np.array(self.data)
+        np.save('test_data.npy', self.data)
+
+
 if __name__ == "__main__":
     TRAIN_IMAGE_DIR = 'train'
     TEST_IMAGE_DIR = 'test'
@@ -408,7 +518,7 @@ if __name__ == "__main__":
 
     """
         Get the basic information of our train data
-        
+
         If this is the first time you run the code
         Please uncomment 'getTrainImageInfo()' to get the resize images
     """
@@ -426,7 +536,7 @@ if __name__ == "__main__":
 
     """
         Extract image feature
-        
+
         You can uncomment the next 2 line to recompute the feature np arrays. It will save the the new array feature,
         so be careful you might overwrite the old feature arrays.
     """
@@ -444,8 +554,15 @@ if __name__ == "__main__":
     train_data.visualizeFeature()
     print('Finished visualize the data and compute entropy.')
 
-    # add tests for each class below
-    # print("Image preprocessing tests...")
-    # print("Visual feature extraction tests...")
-    # print("Feature exploration tests...")
-    # print("Feature selection tests...")
+    """
+        Update the feature label
+    """
+    updateLabelToFeature()
+    print('Finished fixing label in feature arrays.')
+
+    """
+        Prepare test data
+    """
+    test_data = TestDataPoint()
+    test_data.getData()
+    print('Finished load test data.')
