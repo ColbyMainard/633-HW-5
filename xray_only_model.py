@@ -66,7 +66,7 @@ def get_cross_validation_accuracy(layer_count, optimizer, activator_fun, layer_t
 	model = Sequential()
 	num_pixels = 600*600
 	denom_val = 1
-	model.add(Conv2D(32, kernel_size=3, activation=activator_fun, input_shape=(600,600,1,1)))
+	model.add(Conv2D(32, kernel_size=3, activation=activator_fun, input_shape=(None,600,600,1)))
 	for idx in range (0, layer_count):
 		model.add(Conv2D(32, kernel_size=(1,1), activation=activator_fun))
 		if layer_type == Dense:
@@ -85,11 +85,11 @@ def get_cross_validation_accuracy(layer_count, optimizer, activator_fun, layer_t
 		raw_x_train_data, raw_x_test_data = image_filenames[train_index], image_filenames[test_index]
 		x_train_data = format_images("resized_train", raw_x_train_data)
 		#x_train_data = np.array(x_train_data)
-		x_train_data = x_train_data.reshape(200, 600, 600)
+		x_train_data = x_train_data.reshape(200, 600, 600, 1)
 		print("Training images shape:", str(x_train_data.shape))
 		x_test_data = format_images("resized_train", raw_x_test_data)
 		#x_test_data = np.array(x_test_data)
-		x_test_data = x_test_data.reshape(50, 600, 600)
+		x_test_data = x_test_data.reshape(50, 600, 600, 1)
 		print("Test images shape:", str(x_test_data.shape))
 		y_train_data, y_test_data = to_categorical(csv_y_data[train_index], num_classes=2), to_categorical(csv_y_data[test_index], num_classes=2)
 		model_history = model.fit(x_train_data, y_train_data, epochs=epoch_count, batch_size=200)
