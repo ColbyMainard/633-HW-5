@@ -69,7 +69,8 @@ class ImagePreprocessor:
         self.resolution = (600, 600)
         self.gray_scale = []
         self.mean_pixel = []
-        self.extracting_edge = []
+        self.extracting_edge_horizontal = []
+        self.extracting_edge_vertical = []
         self.hog = []
 
     def featureExtraction(self):
@@ -87,18 +88,21 @@ class ImagePreprocessor:
         # convert to numpy array to save
         self.gray_scale = np.array(self.gray_scale)
         self.mean_pixel = np.array(self.mean_pixel)
-        self.extracting_edge = np.array(self.extracting_edge)
+        self.extracting_edge_horizontal = np.array(self.extracting_edge_horizontal)
+        self.extracting_edge_vertical = np.array(self.extracting_edge_vertical)
         self.hog = np.array(self.hog)
 
         np.save('gray_scale_feature.npy', self.gray_scale)
         np.save('mean_pixel_feature.npy', self.mean_pixel)
-        np.save('extracting_edge_feature.npy', self.extracting_edge)
+        np.save('extracting_edge_horizontal_feature.npy', self.extracting_edge_horizontal)
+        np.save('extracting_edge_vertical_feature.npy', self.extracting_edge_vertical)
         np.save('hog_feature.npy', self.hog)
 
         # for test data
         self.gray_scale = []
         self.mean_pixel = []
-        self.extracting_edge = []
+        self.extracting_edge_horizontal = []
+        self.extracting_edge_vertical = []
         self.hog = []
 
         for image in os.listdir(RESIZE_TEST_IMAGE_DIR):
@@ -114,12 +118,14 @@ class ImagePreprocessor:
         # convert to numpy array to save
         self.gray_scale = np.array(self.gray_scale)
         self.mean_pixel = np.array(self.mean_pixel)
-        self.extracting_edge = np.array(self.extracting_edge)
+        self.extracting_edge_horizontal = np.array(self.extracting_edge_horizontal)
+        self.extracting_edge_vertical = np.array(self.extracting_edge_vertical)
         self.hog = np.array(self.hog)
 
         np.save('test_gray_scale_feature.npy', self.gray_scale)
         np.save('test_mean_pixel_feature.npy', self.mean_pixel)
-        np.save('test_extracting_edge_feature.npy', self.extracting_edge)
+        np.save('test_extracting_edge_horizontal_feature.npy', self.extracting_edge_horizontal)
+        np.save('test_extracting_edge_vertical_feature.npy', self.extracting_edge_vertical)
         np.save('test_hog_feature.npy', self.hog)
 
     def grayScaleFeature(self, gray_image, image_name):
@@ -137,34 +143,32 @@ class ImagePreprocessor:
     def extractingEdgeFeature(self, image, image_name):
         # calculating horizontal edges using prewitt kernel
         edges_prewitt_horizontal = prewitt_h(image)
+        edges_prewitt_horizontal = edges_prewitt_horizontal.flatten()
 
         # calculating vertical edges using prewitt kernel
         edges_prewitt_vertical = prewitt_v(image)
+        edges_prewitt_vertical = edges_prewitt_vertical.flatten()
 
-        # horizontal for image 1 is self.extracting_edge[0][0]
-        # vertical for image 1 is self.extracting_edge[0][1]
-        edge_features = (edges_prewitt_horizontal, edges_prewitt_vertical)
-        self.extracting_edge.append((image_name, edge_features))
+        self.extracting_edge_horizontal.append((image_name, edges_prewitt_horizontal))
+        self.extracting_edge_vertical.append((image_name, edges_prewitt_vertical))
 
     def hogFeature(self, image, image_name):
         # creating hog features
         fd, hog_image = hog(image, orientations=9, pixels_per_cell=(8, 8),
                             cells_per_block=(2, 2), visualize=True, multichannel=True)
-
-        # rescale histogram for better display
-        hog_image_rescaled = exposure.rescale_intensity(hog_image, in_range=(0, 10))
-
-        self.hog.append((image_name, hog_image_rescaled))
+        hog_image = hog_image.flatten()
+        self.hog.append((image_name, hog_image))
 
 
 def getFeature(feature):
     """
-        4 possible features, * means more important
+        5 possible features, * means more important
 
-        gray_scale or test_gray_scale
-        mean_pixel * or test_mean_pixel
-        extracting_edge * or test_extracting_edge
-        hog * or test_hog
+        gray_scale
+        mean_pixel *
+        extracting_edge_vertical *
+        extracting_edge_horizontal *
+        hog *
 
 
         I think we should use a combination of:
@@ -188,11 +192,17 @@ def getFeature(feature):
     if feature == 'test_mean_pixel':
         return np.load('test_mean_pixel_feature.npy', allow_pickle=True)
 
-    if feature == 'extracting_edge':
-        return np.load('extracting_edge_feature.npy', allow_pickle=True)
+    if feature == 'extracting_edge_vertical':
+        return np.load('extracting_edge_vertical_feature.npy', allow_pickle=True)
 
     if feature == 'test_extracting_edge':
-        return np.load('test_extracting_edge_feature.npy', allow_pickle=True)
+        return np.load('test_extracting_edge_vertical_feature.npy', allow_pickle=True)
+
+    if feature == 'extracting_edge_horizontal':
+        return np.load('extracting_edge_horizontal_feature.npy', allow_pickle=True)
+
+    if feature == 'test_extracting_edge':
+        return np.load('test_extracting_edge_horizontal_feature.npy', allow_pickle=True)
 
     if feature == 'hog':
         return np.load('hog_feature.npy', allow_pickle=True)
@@ -569,7 +579,7 @@ if __name__ == "__main__":
     train_images = ImagePreprocessor()
     train_images.featureExtraction()
     print('Finished extracting features from images.')
-
+    exit()
     """
         Visualize train data
 
