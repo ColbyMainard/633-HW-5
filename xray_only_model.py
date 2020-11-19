@@ -16,7 +16,7 @@ from sklearn.model_selection import StratifiedKFold
 from tensorflow.python.keras.engine import sequential
 
 import machine_learning_models
-from machine_learning_models import parse_csv_data, save_keras_model
+from machine_learning_models import load_keras_model, parse_csv_data, save_keras_model
 
 import os
 import cv2
@@ -162,9 +162,14 @@ def implement_optimum_model(parameter_tuple):
 	y_data = csv_y_data
 	model = Sequential(feature+classifier)
 	model.compile(optimizer=compiler_optimizer, loss='binary_crossentropy',metrics=['accuracy'],)
-	model.fit(x_data, to_categorical(y_data), epochs=10, batch_size=5, verbose=0)
+	model_history = model.fit(x_data, to_categorical(y_data), epochs=12, batch_size=5)
+	print("Accuracy history:", model_history.history['accuracy'])
 	save_keras_model(model, "optimum_xray_model.json","optimum_xray_model.h5")
 
 if __name__ == "__main__":
-	optimize_hyperparameters()
-	implement_optimum_model(best_hyper_parameter_tuple)
+	#optimize_hyperparameters()
+	#implement_optimum_model(best_hyper_parameter_tuple)
+	implement_optimum_model((3, 4, 'rmsprop', 'relu'))
+	model = load_keras_model("optimum_xray_model.json","optimum_xray_model.h5")
+	print("Model summary:")
+	print(model.summary())
