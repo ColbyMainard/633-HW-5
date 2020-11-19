@@ -173,7 +173,3 @@ if __name__ == "__main__":
 	model = load_keras_model("optimum_xray_model.json","optimum_xray_model.h5")
 	print("Model summary:")
 	print(model.summary())
-	test_images = np.array(load_image_directory("resized_test"))
-	test_images = test_images.resize(-1, 600, 600, 1)
-	test_predictions = model.predict(test_images)
-	print(test_predictions)
