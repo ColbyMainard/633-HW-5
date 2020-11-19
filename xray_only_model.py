@@ -16,7 +16,7 @@ from sklearn.model_selection import StratifiedKFold
 from tensorflow.python.keras.engine import sequential
 
 import machine_learning_models
-from machine_learning_models import load_keras_model, parse_csv_data, save_keras_model
+from machine_learning_models import load_image_directory, load_keras_model, parse_csv_data, save_keras_model
 
 import os
 import cv2
@@ -169,7 +169,11 @@ def implement_optimum_model(parameter_tuple):
 if __name__ == "__main__":
 	#optimize_hyperparameters()
 	#implement_optimum_model(best_hyper_parameter_tuple)
-	implement_optimum_model((3, 4, 'rmsprop', 'relu'))
+	#implement_optimum_model((3, 4, 'rmsprop', 'relu'))
 	model = load_keras_model("optimum_xray_model.json","optimum_xray_model.h5")
 	print("Model summary:")
 	print(model.summary())
+	test_images = np.array(load_image_directory("resized_test"))
+	test_images = test_images.resize(-1, 600, 600, 1)
+	test_predictions = model.predict(test_images)
+	print(test_predictions)
