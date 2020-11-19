@@ -50,14 +50,6 @@ def reduceFeatures(x_train):
 
 
 def testModel(x_data, y_data):
-    # model = LogisticRegression(penalty='none')
-    # x_train,x_test,y_train,y_test=train_test_split(x_data,y_data,test_size=0.20,random_state=0)
-    # model.fit(x_train, y_train)
-    # y_pred=model.predict(x_test)
-    # cnf_matrix = metrics.confusion_matrix(y_test, y_pred)
-    # print(cnf_matrix)
-    # print("accuracy = " + str(metrics.accuracy_score(y_test, y_pred)))
-
     accuracies = []
     x_parts, y_parts = splitData(x_data, y_data)  
 
