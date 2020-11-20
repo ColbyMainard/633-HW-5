@@ -88,10 +88,10 @@ if __name__ == "__main__":
 	print("Testing various learning agents...")
 	print("\tAdaBoost tests...")	
 
-	# params = {}
-	# params['n_estimators'] = 100
-	# model = adaboost_classifier(training_images, training_data_y, params)
-	# print(adaboost_score(model, test_images, testing_data_y))
+	params = {}
+	params['n_estimators'] = 20
+	model = adaboost_classifier(training_images, training_data_y, params)
+	print(adaboost_score(model, test_images, testing_data_y))
 
 	print("\tImage processing tests...")
 	print("\tPatient info tests...")

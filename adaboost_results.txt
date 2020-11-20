@@ -1,0 +1,6 @@
+"feature_name","cv_0_score","cv_1_score","cv_2_score","cv_3_score","cv_4_score"
+"hog",0.52, 0.54,0.58,0.54,0.56
+"mean_pixel",0.68,0.56,0.74,0.64,0.66
+"edge_vertical",0.5,0.58,0.58,0.56,0.56
+"edge_horizontal",0.56,0.52,0.64,0.62,0.56
+"gray_scale",0.58,0.56,0.68,0.52,0.68

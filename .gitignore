@@ -2,8 +2,8 @@
 hw5/ 
 
 # data files
-resize_train/
-resize_test/
+resized_train
+resized_test
 test/
 train/
 test.csv
@@ -11,4 +11,7 @@ train.csv
 
 # any python cache file
 *.pyc 
+__pycache__/*
 
+# npy files
+*.npy

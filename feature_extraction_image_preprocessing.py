@@ -75,7 +75,10 @@ class ImagePreprocessor:
 
     def featureExtraction(self):
         # for train data
-        for image in os.listdir(RESIZE_TRAIN_IMAGE_DIR):
+        i = 1
+        images =  os.listdir(RESIZE_TRAIN_IMAGE_DIR)
+        count = len(images)
+        for image in images:
             image_name = image
             full_path_to_image = os.path.join(RESIZE_TRAIN_IMAGE_DIR, image)
             gray_image = cv2.imread(full_path_to_image, cv2.IMREAD_GRAYSCALE)
@@ -84,6 +87,9 @@ class ImagePreprocessor:
             self.meanPixelValueOfChannels(image, image_name)
             self.extractingEdgeFeature(gray_image, image_name)
             self.hogFeature(image, image_name)
+            print("Completed Processing Training Image {}/{}: {}".format(i, count,image_name))
+            i+=1
+
 
         # convert to numpy array to save
         self.gray_scale = np.array(self.gray_scale)
@@ -105,7 +111,10 @@ class ImagePreprocessor:
         self.extracting_edge_vertical = []
         self.hog = []
 
-        for image in os.listdir(RESIZE_TEST_IMAGE_DIR):
+        i = 1
+        images = os.listdir(RESIZE_TEST_IMAGE_DIR)
+        count = len(images)
+        for image in images:
             image_name = image
             full_path_to_image = os.path.join(RESIZE_TEST_IMAGE_DIR, image)
             gray_image = cv2.imread(full_path_to_image, cv2.IMREAD_GRAYSCALE)
@@ -114,7 +123,8 @@ class ImagePreprocessor:
             self.meanPixelValueOfChannels(image, image_name)
             self.extractingEdgeFeature(gray_image, image_name)
             self.hogFeature(image, image_name)
-
+            print("Completed Processing Test Image {}/{}: {}".format(i, count,image_name))
+            i+=1
         # convert to numpy array to save
         self.gray_scale = np.array(self.gray_scale)
         self.mean_pixel = np.array(self.mean_pixel)
@@ -584,8 +594,8 @@ if __name__ == "__main__":
         If this is the first time you run the code
         Please uncomment 'getTrainImageInfo()' to get the resize images
     """
-    getImageInfo('train')
-    print('Finished resizing train images.')
+    # getImageInfo('train')
+    # print('Finished resizing train images.')
 
     """
         Get the basic information of our test data
@@ -593,8 +603,8 @@ if __name__ == "__main__":
         If this is the first time you run the code
         Please uncomment 'getTrainImageInfo()' to get the resize images
     """
-    getImageInfo('test')
-    print('Finished resizing test images.')
+    # getImageInfo('test')
+    # print('Finished resizing test images.')
 
     """
         Extract image feature
@@ -602,8 +612,8 @@ if __name__ == "__main__":
         You can uncomment the next 2 line to recompute the feature np arrays. It will save the the new array feature,
         so be careful you might overwrite the old feature arrays.
     """
-    train_images = ImagePreprocessor()
-    train_images.featureExtraction()
+    # train_images = ImagePreprocessor()
+    # train_images.featureExtraction()
     print('Finished extracting features from images.')
 
     """
@@ -613,8 +623,8 @@ if __name__ == "__main__":
     """
     train_data = DataPoint()
     train_data.getData()
-    train_data.visualizeFeature()
-    print('Finished visualize the data and compute entropy.')
+    # train_data.visualizeFeature()
+    # print('Finished visualize the data and compute entropy.')
 
     """
         Update the feature label
