@@ -76,7 +76,8 @@ if __name__ == '__main__':
         data.append(i[1])
     label = np.asarray(label)
     gray_scale_fisher_score = fisher_score(data, label)
-    gray_scale_fisher_score = feature_ranking(gray_scale_fisher_score[0])
+    gray_scale_fisher_score = feature_ranking(gray_scale_fisher_score)
+    print(f'Gray scale fisher score: {gray_scale_fisher_score[0]}')
 
     mean_pixel_feature = feature.getFeature('mean_pixel')
     data = []
@@ -84,22 +85,28 @@ if __name__ == '__main__':
         data.append(i[1])
     mean_pixel_fisher_score = fisher_score(data, label)
     mean_pixel_fisher_score = feature_ranking(mean_pixel_fisher_score)
-    print(mean_pixel_fisher_score[0])
+    print(f'Mean fisher score: {mean_pixel_fisher_score[0]}')
 
-    extracting_edge_feature = feature.getFeature('extracting_edge')
-    data_horizontal = []
-    data_vertical = []
-    for i in mean_pixel_feature:
-        data_horizontal.append(i[1][0])
-        data_vertical.append(i[1][1])
-    extracting_edge_horizontal_fisher_score = fisher_score(data_horizontal, label)
+    extracting_edge_horizontal_feature = feature.getFeature('extracting_edge_horizontal')
+    data = []
+    for i in extracting_edge_horizontal_feature:
+        data.append(i[1])
+    extracting_edge_horizontal_fisher_score = fisher_score(data, label)
     extracting_edge_horizontal_fisher_score = feature_ranking(extracting_edge_horizontal_fisher_score)
-    print(extracting_edge_horizontal_fisher_score)
-    extracting_edge_vertical_fisher_score = fisher_score(data_vertical, label)
+    print(f'Horizontal fisher score: {extracting_edge_horizontal_fisher_score[0]}')
+
+    extracting_edge_vertical_feature = feature.getFeature('extracting_edge_vertical')
+    data = []
+    for i in extracting_edge_vertical_feature:
+        data.append(i[1])
+    extracting_edge_vertical_fisher_score = fisher_score(data, label)
     extracting_edge_vertical_fisher_score = feature_ranking(extracting_edge_vertical_fisher_score)
-    print(extracting_edge_vertical_fisher_score[0])
+    print(f'Vertical fisher score: {extracting_edge_vertical_fisher_score[0]}')
 
     hog_feature = feature.getFeature('hog')
+    data = []
+    for i in hog_feature:
+        data.append(i[1])
     hog_fisher_score = fisher_score(data, label)
     hog_fisher_score = feature_ranking(hog_fisher_score)
-    print(hog_fisher_score[0])
+    print(f'HOG fisher score: {hog_fisher_score[0]}')
