@@ -170,7 +170,7 @@ def implement_optimum_model(parameter_tuple):
 if __name__ == "__main__":
 	#optimize_hyperparameters()
 	#implement_optimum_model(best_hyper_parameter_tuple)
-	#implement_optimum_model((3, 4, 'rmsprop', 'relu'))
+	implement_optimum_model((3, 4, 'rmsprop', 'relu'))
 	model = load_keras_model("optimum_xray_model.json","optimum_xray_model.h5")
 	print("Model summary:")
 	print(model.summary())
@@ -178,4 +178,6 @@ if __name__ == "__main__":
 	raw_x_data = csv_x_data[:,0]
 	raw_x_data = format_images("resized_test", raw_x_data)
 	x_data = raw_x_data.reshape(94,600,600,1)
-	model.predict(x_data)
+	predictions = model.predict(x_data)
+	predictions = predictions.reshape(94,1)
+	print(predictions)
